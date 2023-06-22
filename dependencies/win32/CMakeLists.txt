@@ -1,16 +1,17 @@
 cmake_minimum_required(VERSION 3.18) # for file(ARCHIVE_EXTRACT ...)
 
-set(GTK_BUNDLE_ZIP gtk+-bundle_2.24.10-20120208_win32.zip) # TODO: find correct version. 2.14.7 is too old, see https://developer.pidgin.im/ticket/15526
+# Pidgin 2.14.12 is shipped with gtk+ 2.16.6 and glib 2.28.8
+set(GTK_BUNDLE_ZIP gtk+-bundle_2.16.6-20100912_win32.zip)  # NOTE: This contains glib 2.24.2
 IF(NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/${GTK_BUNDLE_ZIP})
     message(STATUS "Fetching ${GTK_BUNDLE_ZIP}...")
-    file(DOWNLOAD http://ftp.gnome.org/pub/gnome/binaries/win32/gtk+/2.24/${GTK_BUNDLE_ZIP} ${CMAKE_CURRENT_BINARY_DIR}/${GTK_BUNDLE_ZIP} SHOW_PROGRESS)
+    file(DOWNLOAD http://ftp.gnome.org/pub/gnome/binaries/win32/gtk+/2.16/${GTK_BUNDLE_ZIP} ${CMAKE_CURRENT_BINARY_DIR}/${GTK_BUNDLE_ZIP} SHOW_PROGRESS)
 ENDIF()
 IF(NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/gtk/include/gtk-2.0/gtk/gtk.h)
     file(ARCHIVE_EXTRACT INPUT ${CMAKE_CURRENT_BINARY_DIR}/${GTK_BUNDLE_ZIP} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/gtk)
 ENDIF()
 set(GTK_INCLUDE_DIRS 
-    ${CMAKE_CURRENT_BINARY_DIR}/gtk/include 
-    ${CMAKE_CURRENT_BINARY_DIR}/gtk/include/glib-2.0 
+    ${CMAKE_CURRENT_BINARY_DIR}/gtk/include
+    ${CMAKE_CURRENT_BINARY_DIR}/gtk/include/glib-2.0
     ${CMAKE_CURRENT_BINARY_DIR}/gtk/include/gtk-2.0/gtk
     ${CMAKE_CURRENT_BINARY_DIR}/gtk/lib/glib-2.0/include
 )
@@ -19,7 +20,7 @@ set(GTK_LIBRARY_DIRS
 )
 find_file(GLIB_LIB "glib-2.0.lib" PATHS ${GTK_LIBRARY_DIRS})
 
-set(PIDGIN_VERSION 2.14.8)
+set(PIDGIN_VERSION 2.14.12)
 set(PIDGIN_DIRNAME pidgin-${PIDGIN_VERSION})
 set(PIDGIN_SOURCE_ZIP ${PIDGIN_DIRNAME}.tar.bz2)
 IF(NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/${PIDGIN_SOURCE_ZIP})
@@ -38,20 +39,7 @@ ENDIF()
 IF(NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/${PIDGIN_DIRNAME}-win32bin/libpurple.dll)
     file(ARCHIVE_EXTRACT INPUT ${CMAKE_CURRENT_BINARY_DIR}/${PIDGIN_BINARY_ZIP} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 ENDIF()
-set(LIBPURPLE_LIB ${CMAKE_CURRENT_BINARY_DIR}/${PIDGIN_DIRNAME}-win32bin/libpurple.lib)
-add_custom_target(
-  libpurple_lib
-  DEPENDS ${LIBPURPLE_LIB}
-)
-add_custom_command(
-    OUTPUT ${LIBPURPLE_LIB}
-    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/dll2lib.bat 
-    ARGS 32 ${CMAKE_CURRENT_BINARY_DIR}/${PIDGIN_DIRNAME}-win32bin/libpurple.dll
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${PIDGIN_DIRNAME}-win32bin
-    MAIN_DEPENDENCY ${CMAKE_CURRENT_BINARY_DIR}/${PIDGIN_DIRNAME}-win32bin/libpurple.dll
-    COMMENT "Generating .lib file from .dll..."
-    USES_TERMINAL
-)
+set(LIBPURPLE_LIB ${CMAKE_CURRENT_BINARY_DIR}/${PIDGIN_DIRNAME}-win32bin/libpurple.dll)
 
 set(PURPLE_INCLUDE_DIRS
     ${GTK_INCLUDE_DIRS}
@@ -62,7 +50,11 @@ set(PURPLE_LIBRARIES
     ${GLIB_LIB} ${LIBPURPLE_LIB}
     PARENT_SCOPE
 )
-set(PURPLE_PLUGIN_DIRECTORY # TODO: find canonical name for this
+set(PURPLE_DATA_DIR
+    ${CMAKE_CURRENT_BINARY_DIR}/${PIDGIN_DIRNAME}-win32bin
+    PARENT_SCOPE
+)
+set(PURPLE_PLUGIN_DIR
     ${CMAKE_CURRENT_BINARY_DIR}/${PIDGIN_DIRNAME}-win32bin/plugins
     PARENT_SCOPE
 )
