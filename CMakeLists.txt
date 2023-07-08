@@ -1,6 +1,6 @@
 ﻿cmake_minimum_required(VERSION 3.8)
 
-project("purple-cmake-template")
+project("purple-cmake-template") # this needs to exist on the top level
 
 if(WIN32 AND NOT ${CMAKE_SIZEOF_VOID_P} EQUAL 4)
     message(FATAL_ERROR "On Windows, Pidgin 2 is 32 bit only.")
@@ -8,26 +8,31 @@ endif()
 
 find_package(PkgConfig QUIET)
 if (${PKG_CONFIG_FOUND})
-    pkg_check_modules(PURPLE REQUIRED purple)
+    pkg_check_modules(PURPLE purple)
     pkg_get_variable(PURPLE_PLUGIN_DIR purple plugindir)
     pkg_get_variable(PURPLE_DATA_DIR purple datarootdir)
-elseif(WIN32)
+endif()
+if(WIN32 AND (NOT "${PkgConfig_FOUND}" OR NOT "${Purple_FOUND}"))
     message(STATUS "Trying win32 auto-configuration...")
     add_subdirectory(${CMAKE_SOURCE_DIR}/dependencies/win32)
-elseif(${Purple_FOUND})
-    message(STATUS "Purple was configured manually. Proceeding without checks.")
-else()
-    message(FATAL "pkg-config not found. Please configure manually and set Purple_FOUND to YES.")
+endif()
+if(NOT "${Purple_FOUND}")
+    if (WIN32)
+        message(FATAL_ERROR "Purple not found. Automatic configuration seems to have failed.")
+    else()
+        message(FATAL_ERROR "Purple not found. Automatic configuration not available for this platform.")
+    endif()
 endif()
 
 message(STATUS "PURPLE_INCLUDE_DIRS: ${PURPLE_INCLUDE_DIRS}")
 message(STATUS "PURPLE_LIBRARY_DIRS: ${PURPLE_LIBRARY_DIRS}")
 message(STATUS "PURPLE_LIBRARIES: ${PURPLE_LIBRARIES}")
 
-set(TARGET_NAME purple-cmake)
+string(REPLACE "purple-" "" TARGET_NAME ${CMAKE_PROJECT_NAME})
 add_library(${TARGET_NAME} SHARED 
-    "src/init.c"
+    "src/c/init.c"
 )
+add_subdirectory(src)
 
 file(READ "${CMAKE_SOURCE_DIR}/VERSION" PLUGIN_VERSION)
 target_compile_definitions(${TARGET_NAME} PRIVATE PLUGIN_VERSION=${PLUGIN_VERSION})
