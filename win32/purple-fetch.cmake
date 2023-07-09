@@ -24,6 +24,11 @@ set(GTK_LIBRARY_DIRS
 )
 find_file(GLIB_LIB "glib-2.0.lib" PATHS ${GTK_LIBRARY_DIRS})
 
+# not always strictly considered a part of gtk, but gdk-pixbuf is part of the bundle
+set(PIXBUF_INCLUDE_DIRS ${CMAKE_CURRENT_BINARY_DIR}/win32/gtk/include/gtk-2.0)
+find_file(PIXBUF_LIB "gdk_pixbuf-2.0.lib" PATHS ${GTK_LIBRARY_DIRS})
+set(PIXBUF_LIBRARIES ${PIXBUF_LIB})
+
 set(PIDGIN_VERSION 2.14.12)
 set(PIDGIN_DIRNAME pidgin-${PIDGIN_VERSION})
 set(PIDGIN_SOURCE_ZIP ${PIDGIN_DIRNAME}.tar.bz2)
@@ -43,6 +48,8 @@ ENDIF()
 IF(NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/win32/${PIDGIN_DIRNAME}-win32bin/libpurple.dll)
     file(ARCHIVE_EXTRACT INPUT ${CMAKE_CURRENT_BINARY_DIR}/win32/${PIDGIN_BINARY_ZIP} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/win32)
 ENDIF()
+IF (MSVC)
+# MSVC needs a .lib file
 set(LIBPURPLE_LIB ${CMAKE_CURRENT_BINARY_DIR}/win32/${PIDGIN_DIRNAME}-win32bin/libpurple.lib)
 add_custom_target(
   libpurple_lib
@@ -57,26 +64,30 @@ add_custom_command(
     COMMENT "Generating .lib file from .dll..."
     USES_TERMINAL
 )
+ELSE()
+# MinGW GCC can use the .dll directly
+set(LIBPURPLE_LIB ${CMAKE_CURRENT_BINARY_DIR}/win32/${PIDGIN_DIRNAME}-win32bin/libpurple.dll)
+ENDIF()
 
-set(Purple_INCLUDE_DIRS
+set(PURPLE_INCLUDE_DIRS
     ${GTK_INCLUDE_DIRS}
     ${CMAKE_CURRENT_BINARY_DIR}/win32/${PIDGIN_DIRNAME}/libpurple
 )
-set(Purple_LIBRARIES
+set(PURPLE_LIBRARIES
     ${GLIB_LIB} ${LIBPURPLE_LIB} 
 )
-set(Purple_DATA_DIR
+set(PURPLE_DATA_DIR
     ${CMAKE_CURRENT_BINARY_DIR}/win32/${PIDGIN_DIRNAME}-win32bin
 )
-set(Purple_PLUGIN_DIR
+set(PURPLE_PLUGIN_DIR
     ${CMAKE_CURRENT_BINARY_DIR}/win32/${PIDGIN_DIRNAME}-win32bin/plugins
 )
-set(Purple_FOUND
+set(PURPLE_FOUND
     TRUE
 )
 
-set(Purple_CONFIG_DIR "${CMAKE_CURRENT_BINARY_DIR}/pidgin_config" CACHE PATH "The purple user configuration directory. For production, this is ~/.purple.")
+set(PURPLE_CONFIG_DIR "${CMAKE_CURRENT_BINARY_DIR}/pidgin_config" CACHE PATH "The purple user configuration directory. For production, this is ~/.purple.")
 add_custom_target(run
-    COMMAND ${CMAKE_COMMAND} -E env "PATH=$ENV{PATH};${CMAKE_CURRENT_BINARY_DIR}/win32/gtk/bin;${CMAKE_CURRENT_BINARY_DIR}/win32/pidgin-2.14.12-win32bin" pidgin -d -c ${Purple_CONFIG_DIR}
+    COMMAND ${CMAKE_COMMAND} -E env "PATH=$ENV{PATH};${CMAKE_CURRENT_BINARY_DIR}/win32/gtk/bin;${CMAKE_CURRENT_BINARY_DIR}/win32/pidgin-2.14.12-win32bin" pidgin -d -c ${PURPLE_CONFIG_DIR}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
