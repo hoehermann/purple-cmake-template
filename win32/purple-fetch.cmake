@@ -91,6 +91,6 @@ set(PURPLE_FOUND
 
 set(PURPLE_CONFIG_DIR "${CMAKE_CURRENT_BINARY_DIR}/pidgin_config" CACHE PATH "The purple user configuration directory. For production, this is ~/.purple.")
 add_custom_target(run
-    COMMAND ${CMAKE_COMMAND} -E env "PATH=$ENV{PATH};${CMAKE_CURRENT_BINARY_DIR}/win32/gtk/bin;${CMAKE_CURRENT_BINARY_DIR}/win32/pidgin-2.14.12-win32bin" pidgin -d -c ${PURPLE_CONFIG_DIR}
+    COMMAND ${CMAKE_COMMAND} -E env "PATH=$ENV{PATH};${CMAKE_CURRENT_BINARY_DIR}/win32/gtk/bin;${CMAKE_CURRENT_BINARY_DIR}/win32/pidgin-${PIDGIN_VERSION}-win32bin" pidgin -d -c ${PURPLE_CONFIG_DIR}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
