@@ -49,24 +49,23 @@ IF(NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/win32/${PIDGIN_DIRNAME}-win32bin/libpu
     file(ARCHIVE_EXTRACT INPUT ${CMAKE_CURRENT_BINARY_DIR}/win32/${PIDGIN_BINARY_ZIP} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/win32)
 ENDIF()
 IF (MSVC)
-# MSVC needs a .lib file
-set(LIBPURPLE_LIB ${CMAKE_CURRENT_BINARY_DIR}/win32/${PIDGIN_DIRNAME}-win32bin/libpurple.lib)
-add_custom_target(
-  libpurple_lib
-  DEPENDS ${LIBPURPLE_LIB}
-)
-add_custom_command(
-    OUTPUT ${LIBPURPLE_LIB}
-    COMMAND ${CMAKE_CURRENT_LIST_DIR}/dll2lib.bat 
-    ARGS 32 ${CMAKE_CURRENT_BINARY_DIR}/win32/${PIDGIN_DIRNAME}-win32bin/libpurple.dll
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/win32/${PIDGIN_DIRNAME}-win32bin
-    MAIN_DEPENDENCY ${CMAKE_CURRENT_BINARY_DIR}/win32/${PIDGIN_DIRNAME}-win32bin/libpurple.dll
-    COMMENT "Generating .lib file from .dll..."
-    USES_TERMINAL
-)
+    # MSVC needs a .lib file
+    set(LIBPURPLE_LIB ${CMAKE_CURRENT_BINARY_DIR}/win32/${PIDGIN_DIRNAME}-win32bin/libpurple.lib)
+    add_custom_target(
+      libpurple_lib
+      DEPENDS ${LIBPURPLE_LIB}
+    )
+    add_custom_command(
+        OUTPUT ${LIBPURPLE_LIB}
+        COMMAND cmd
+        ARGS /c ${CMAKE_CURRENT_LIST_DIR}/dll2lib.bat 32 ${CMAKE_CURRENT_BINARY_DIR}/win32/${PIDGIN_DIRNAME}-win32bin/libpurple.dll
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/win32/${PIDGIN_DIRNAME}-win32bin
+        MAIN_DEPENDENCY ${CMAKE_CURRENT_BINARY_DIR}/win32/${PIDGIN_DIRNAME}-win32bin/libpurple.dll
+        COMMENT "Generating .lib file from .dll..."
+    )
 ELSE()
-# MinGW GCC can use the .dll directly
-set(LIBPURPLE_LIB ${CMAKE_CURRENT_BINARY_DIR}/win32/${PIDGIN_DIRNAME}-win32bin/libpurple.dll)
+    # MinGW GCC can use the .dll directly
+    set(LIBPURPLE_LIB ${CMAKE_CURRENT_BINARY_DIR}/win32/${PIDGIN_DIRNAME}-win32bin/libpurple.dll)
 ENDIF()
 
 set(PURPLE_INCLUDE_DIRS
