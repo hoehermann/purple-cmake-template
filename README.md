@@ -31,7 +31,7 @@ This script is used in [purple-whatsmeow](https://github.com/hoehermann/purple-g
 
 Note: During the configuration step, you can override `PURPLE_DATA_DIR` and `PURPLE_PLUGIN_DIR` request preparing a user-based installation:
 
-   cmake -DPurple_DIR=…/purple-cmake -DPURPLE_DATA_DIR:PATH=~/.local/share -DPURPLE_PLUGIN_DIR:PATH=~/.purple/plugins ..
+    cmake -DPurple_DIR=…/purple-cmake -DPURPLE_DATA_DIR:PATH=~/.local/share -DPURPLE_PLUGIN_DIR:PATH=~/.purple/plugins ..
 
 You can then execute `cmake --install .` without `sudo`.
 
@@ -41,7 +41,9 @@ You can then execute `cmake --install .` without `sudo`.
 
     This will set-up a development environment including a pidgin installation in your build directory.
 
-        cmake -DCMAKE_BUILD_TYPE=Debug -G "MSYS Makefiles" ..
+        cmake -DCMAKE_BUILD_TYPE=Debug ..
+
+    `-G "MSYS Makefiles"` is recommended for MSYS/MinGW. When omitting the generator, CMake may default to MSBuild and you may need to specify `-DCMAKE_GENERATOR_PLATFORM=WIN32` for MSVC x86.
 
     Note: You can use vcpkg-managed packages by adding the path like this: 
 
