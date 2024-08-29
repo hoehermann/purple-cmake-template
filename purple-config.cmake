@@ -1,4 +1,4 @@
-﻿cmake_minimum_required(VERSION 3.18) # see win32 subdirectory
+﻿cmake_minimum_required(VERSION 3.16...3.24)
 
 set(Purple "purple" CACHE STRING "Purple version to build against.")
 set_property(CACHE Purple PROPERTY STRINGS "purple" "purple-3")
@@ -13,7 +13,7 @@ if (${PKG_CONFIG_FOUND})
 endif()
 if(WIN32 AND NOT "${PURPLE_FOUND}" AND "${Purple}" STREQUAL "purple")
     message(STATUS "Trying win32 auto-configuration...")
-    include(${CMAKE_CURRENT_LIST_DIR}/win32/purple-fetch.cmake)
+    include(${CMAKE_CURRENT_LIST_DIR}/win32/purple-fetch.cmake) # Note: This needs cmake 3.18
 endif()
 if(NOT "${PURPLE_FOUND}")
     message(FATAL_ERROR "Purple not found.")
