@@ -1,7 +1,16 @@
-cmake_minimum_required(VERSION 3.18) # for file(ARCHIVE_EXTRACT ...)
+cmake_minimum_required(VERSION 4.1) # for include(CheckTypeSize)
 
-if(NOT ${CMAKE_SIZEOF_VOID_P} EQUAL 4)
+include(CheckTypeSize)
+check_type_size("void *" SIZEOF_VOID_P)
+if(NOT "${SIZEOF_VOID_P}")
+    message(FATAL_ERROR "Pointer size detection failed. Cannot perform checks.")
+endif()
+if(NOT "${SIZEOF_VOID_P}" EQUAL 4)
     message(FATAL_ERROR "On Windows, Pidgin 2 is 32 bit only.")
+endif()
+check_type_size("time_t" SIZEOF_TIME_T)
+if(NOT "${SIZEOF_TIME_T}" EQUAL 4)
+    message(FATAL_ERROR "On Windows, time_t must be 4 bytes, but it is ${SIZEOF_TIME_T} bytes.")
 endif()
 
 # Pidgin 2.14.12 is shipped with gtk+ 2.16.6 and glib 2.28.8
