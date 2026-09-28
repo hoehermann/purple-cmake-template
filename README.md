@@ -19,21 +19,21 @@ This script is used in [purple-whatsmeow](https://github.com/hoehermann/purple-g
 
 1. Configure project. Specify the path to this script:
 
-        cmake -DPurple_DIR=…/purple-cmake ..
+        cmake -DPurple_DIR=…/purple-cmake -S . -B build
 
 2. Build project:
 
-        cmake --build .
+        cmake --build build
 
 3. Install binaries system-wide:
 
-        sudo cmake --install .
+        sudo cmake --install build
 
 Note: During the configuration step, you can override `PURPLE_DATA_DIR` and `PURPLE_PLUGIN_DIR` request preparing a user-based installation:
 
-    cmake -DPurple_DIR=…/purple-cmake -DPURPLE_DATA_DIR:PATH=~/.local/share -DPURPLE_PLUGIN_DIR:PATH=~/.purple/plugins ..
+    cmake -DPurple_DIR=…/purple-cmake -DPURPLE_DATA_DIR:PATH=~/.local/share -DPURPLE_PLUGIN_DIR:PATH=~/.purple/plugins -S . -B build
 
-You can then execute `cmake --install .` without `sudo`.
+You can then execute `cmake --install build` without `sudo`.
 
 ### Windows
 
@@ -41,9 +41,12 @@ You can then execute `cmake --install .` without `sudo`.
 
     This will set-up a development environment including a pidgin installation in your build directory.
 
-        cmake -DCMAKE_BUILD_TYPE=Debug ..
+        cmake -DCMAKE_BUILD_TYPE=Debug -S . -B build 
 
-    `-G "MSYS Makefiles"` is recommended for MSYS/MinGW. When omitting the generator, CMake may default to MSBuild and you may need to specify `-DCMAKE_GENERATOR_PLATFORM=WIN32` for MSVC x86.
+    * Visual Studio Generators  
+      `-G "Visual Studio 18 2026"` is recommended for MSVC. You must specify `-DCMAKE_GENERATOR_PLATFORM=WIN32 -DCMAKE_C_FLAGS="-D _USE_32BIT_TIME_T"` for MSVC x86 in particular.
+    * MSYS Makefiles
+    `-G "MSYS Makefiles"` is recommended for the GNU Compiler Toolchain via MSYS or MinGW. 
 
     Note: You can use vcpkg-managed packages by adding the path like this: 
 
@@ -53,19 +56,19 @@ You can then execute `cmake --install .` without `sudo`.
 
 2. Build:
 
-        cmake --build .
+        cmake --build build
 
 3. Install:
 
     This will install into the pidgin installation in your build directory.
 
-        cmake --install .
+        cmake --install build
 
 4. Execute:
 
     This will execute the Pidgin installation.
 
-        cmake --build . --target run
+        cmake --build build --target run
 
     Note: You can specify the purple user configuration directory to be used by the run target:
 
